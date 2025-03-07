@@ -46,5 +46,4 @@ app.get('/dashboard', (req, res) => {
     res.render('dashboard', { user: req.session.user });
 });
 require('dotenv').config();
-const mongoose = require('mongoose');
 mongoose.connect(process.env.MONGODB_URI);
