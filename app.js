@@ -16,14 +16,9 @@ app.use(express.static('public'));
 app.set('views', path.join(__dirname, 'views')); // Added this line
 app.set('view engine', 'ejs');
 
-// Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://HighRon:nebx889%40@cluster0.tqi1t.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0s', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-})
+mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://HighRon:41384154@cluster0.tqi1t.mongodb.net/HighRonTech?retryWrites=true&w=majority&appName=Cluster0')
 .then(() => console.log('Connected to MongoDB'))
 .catch((err) => console.error('Error connecting to MongoDB:', err));
-
 // Routes
 app.use('/auth', authRoutes);
 
