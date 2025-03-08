@@ -46,12 +46,24 @@
 <body>
     <div class="container">
         <h1>Register</h1>
-        <form action="/register" method="POST">
+        <form id="registerForm">
             <input type="text" name="username" placeholder="Username" required>
             <input type="email" name="email" placeholder="Email" required>
             <input type="password" name="password" placeholder="Password" required>
             <button type="submit">Register</button>
         </form>
     </div>
+
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent the form from submitting the traditional way
+
+            // Simulate a successful registration
+            // In a real-world scenario, you would send the data to a server and handle the response
+            setTimeout(() => {
+                window.location.href = 'login-successful.html'; // Redirect to the "Login Successful" page
+            }, 1000); // Simulate a delay for the registration process
+        });
+    </script>
 </body>
 </html>

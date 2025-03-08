@@ -16,7 +16,7 @@ app.use(session({
     secret: '41384154', // Replace with a strong secret key
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: false } // Set to true if using HTTPS
+    cookie: { secure: true } // Set to true if using HTTPS
 }));
 
 app.get('/public/home', (req, res) => {
