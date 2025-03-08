@@ -19,12 +19,18 @@ exports.login = async (req, res) => {
         if (!user) {
             return res.status(400).send('Invalid email or password');
         }
+        console.log('Stored hash:', user.password);
+        console.log('Entered password:', password);
+
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
+            console.log('Password does not match');
             return res.status(400).send('Invalid email or password');
         }
+        console.log('Login successful');
         res.send('Login successful');
     } catch (err) {
+        console.error('Login error:', err);
         res.status(400).send('Error logging in');
     }
 };

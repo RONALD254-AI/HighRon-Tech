@@ -65,5 +65,24 @@
             <p><a href="/register" type="button">Back</a></p>
         </form>
     </div>
+    <script>
+        // Optional: Handle form submission with JavaScript
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault(); // Prevent the default form submission
+
+            const formData = new FormData(e.target);
+            const response = await fetch('/auth/login', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                // Redirect to the desired page after successful login
+                window.location.href = '/public/home'; // Change this to your desired route
+            } else {
+                alert('Invalid email or password');
+            }
+        });
+    </script>
 </body>
 </html>
