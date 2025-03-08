@@ -29,12 +29,32 @@ app.get('/', (req, res) => {
     res.render('index');
 });
 
-app.get('/login', (req, res) => {
-    res.render('login');
+app.post('/login', (req, res) => {
+    const { username, password } = req.body;
+
+    // Find the user in the mock data
+    const user = users.find(u => u.username === username && u.password === password);
+
+    if (user) {
+        // Render a success message and redirect after 3 seconds
+        res.render('login-success', { message: 'Login successful! Redirecting to dashboard...', redirectUrl: '/public/home.html' });
+    } else {
+        // Failed login: Show an error message
+        res.send('Invalid username or password');
+    }
 });
 
-app.get('/register', (req, res) => {
-    res.render('register');
+app.post('/register', (req, res) => {
+    const { username, password, email } = req.body;
+
+    // Save the user to the database (mock example)
+    const newUser = { username, password, email };
+    users.push(newUser); // Replace with database logic
+
+    // Show a success message and redirect to the login page
+    res.render('register-success', { message: 'Registration successful! Redirecting to login...', redirectUrl: '/views/login.ejs'
+
+     });
 });
 // Dashboard Route
 app.get('/dashboard', (req, res) => {
