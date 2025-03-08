@@ -60,7 +60,7 @@ router.post('/login', async (req, res) => {
         }
 
         req.session.user = user; // Save user in session
-        res.redirect('/dashboard'); // Redirect to the dashboard after login
+        res.redirect('/public/home.html'); // Redirect to the dashboard after login
     } catch (err) {
         res.status(400).send('Error logging in');
     }

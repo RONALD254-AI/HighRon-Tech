@@ -3,14 +3,14 @@ const nodemailer = require('nodemailer');
 const transporter = nodemailer.createTransport({
     service: 'gmail', // Use your email service (e.g., Gmail, Outlook)
     auth: {
-        user: 'highrontech@gmail.com', // Your email address
+        user: 'ronaldsneekord001@gmail.com', // Your email address
         pass: 'nebx889@' // Your email password or app-specific password
     }
 });
 
 const sendVerificationEmail = (email, verificationToken) => {
     const mailOptions = {
-        from: 'your-email@gmail.com',
+        from: 'highrontech@gmail.com',
         to: email,
         subject: 'Verify Your Email',
         text: `Click the link to verify your email: http://localhost:3000/auth/verify/${verificationToken}`
