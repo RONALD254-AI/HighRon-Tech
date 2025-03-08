@@ -9,9 +9,25 @@ require('dotenv').config();
 
 const app = express();
 
-// Serve static files from the "public" directory
-app.use(express.static(path.join(__dirname, 'public')));
+const session = require('express-session');
 
+// Session middleware
+app.use(session({
+    secret: '41384154', // Replace with a strong secret key
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false } // Set to true if using HTTPS
+}));
+
+app.get('/public/home', (req, res) => {
+    // Check if the user is authenticated (optional, if using sessions)
+    if (!req.session.user || !req.session.user.verified) {
+        return res.redirect('/login'); // Redirect to login if not authenticated or verified
+    }
+
+    // Serve the home.html file
+    res.sendFile(path.join(__dirname, 'public', 'home.html'));
+});
 
 // Mock user data (replace with a database in production)
 const users = [];
@@ -21,9 +37,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.set('views', path.join(__dirname, 'views')); // Added this line
 app.set('view engine', 'ejs');
-
-// Serve static files
-app.use(express.static(path.join(__dirname, 'public')));
 
 mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://HighRon:41384154@cluster0.tqi1t.mongodb.net/HighRonTech?retryWrites=true&w=majority&appName=Cluster0')
 .then(() => console.log('Connected to MongoDB'))
@@ -47,14 +60,20 @@ app.get('/login', (req, res) => {
     res.render('login'); // Renders views/login.ejs
 });
 
-// Login Route (POST)
 app.post('/login', (req, res) => {
-    const { username, password } = req.body;
+    const { email, password } = req.body;
 
     // Find the user in the mock data
-    const user = users.find(u => u.email=== email && u.password === password);
+    const user = users.find(u => u.email === email && u.password === password);
 
     if (user) {
+        // Set session data
+        req.session.user = {
+            id: user.id, // Add a unique identifier for the user
+            email: user.email,
+            verified: true // Set this based on your logic
+        };
+
         // Render a success message and redirect after 3 seconds
         res.render('login-success', { message: 'Login successful! Redirecting to homepage...', redirectUrl: '/public/home.html' });
     } else {
@@ -74,15 +93,6 @@ app.post('/register', (req, res) => {
     // Show a success message and redirect to the login page
     res.render('register-success', { message: 'Registration successful! Redirecting to login...', redirectUrl: '/login' });
 });
-
-// Dashboard Route
-app.get('/public/home', (req, res) => {
-    if (!req.session.user || !req.session.user.verified) {
-        return res.redirect('/login'); // Redirect to login if not authenticated or verified
-    }
-    res.render('/public/home.html', { user: req.session.user });
-});
-
 // Start the server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
