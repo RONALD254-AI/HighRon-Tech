@@ -24,6 +24,11 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://HighRon:41384154@clus
 // Routes
 app.use('/auth', authRoutes);
 
+// Home Route
+app.get('/', (req, res) => {
+    res.render('index');
+});
+
 app.get('/login', (req, res) => {
     res.render('login');
 });
@@ -31,12 +36,6 @@ app.get('/login', (req, res) => {
 app.get('/register', (req, res) => {
     res.render('register');
 });
-
-// Home Route
-app.get('/', (req, res) => {
-    res.render('index');
-});
-
 // Dashboard Route
 app.get('/dashboard', (req, res) => {
     if (!req.session.user || !req.session.user.verified) {
