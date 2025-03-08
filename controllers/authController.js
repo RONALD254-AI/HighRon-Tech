@@ -10,27 +10,25 @@ exports.register = async (req, res) => {
     } catch (err) {
         res.status(400).send('Error registering user');
     }
-};
-
-exports.login = async (req, res) => {
+};exports.login = async (req, res) => {
     try {
         const { email, password } = req.body;
+
+        // Find the user by email
         const user = await User.findOne({ email });
         if (!user) {
             return res.status(400).send('Invalid email or password');
         }
-        console.log('Stored hash:', user.password);
-        console.log('Entered password:', password);
 
+        // Compare the entered password with the hashed password
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            console.log('Password does not match');
             return res.status(400).send('Invalid email or password');
         }
-        console.log('Login successful');
-        res.send('Login successful');
+
+        // Redirect to the desired page after successful login
+        res.redirect('/public/home'); // Replace with your desired route
     } catch (err) {
-        console.error('Login error:', err);
         res.status(400).send('Error logging in');
     }
 };

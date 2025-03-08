@@ -76,7 +76,7 @@ app.get('/public/home', (req, res) => {
     if (!req.session.user || !req.session.user.verified) {
         return res.redirect('/login'); // Redirect to login if not authenticated or verified
     }
-    res.render('/public/home', { user: req.session.user });
+    res.render('/public/home.html', { user: req.session.user });
 });
 
 // Start the server
