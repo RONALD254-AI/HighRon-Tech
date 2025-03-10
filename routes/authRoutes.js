@@ -1,44 +1,14 @@
 const express = require('express');
 const authController = require('../controllers/authController');
 const router = express.Router();
+const bcrypt = require('bcrypt');
+const { v4: uuidv4 } = require('uuid');
+const User = require('../models/User'); // Import User model
+const sendVerificationEmail = require('../utils/emailService'); // Ensure this function exists
 
 // Registration Route
 router.post('/register', authController.register);
 
-// Login Route
-router.post('/login', authController.login);
-
-//logout
-router.get('/logout', (req, res) => {
-    req.session.destroy((err) => {
-        if (err) {
-            return res.status(500).send('Error logging out');
-        }
-        res.redirect('/');
-    });
-});
-// Verification Route
-router.get('/verify/:token', async (req, res) => {
-    try {
-        const { token } = req.params;
-
-        // Find the user with the matching verification token
-        const user = await User.findOne({ verificationToken: token });
-
-        if (!user) {
-            return res.status(400).send('Invalid or expired verification token');
-        }
-
-        // Mark the user as verified
-        user.verified = true;
-        user.verificationToken = undefined; // Clear the token
-        await user.save();
-
-        res.send('Email verified successfully. You can now log in.');
-    } catch (err) {
-        res.status(400).send('Error verifying email');
-    }
-});
 // Login Route
 router.post('/login', async (req, res) => {
     try {
@@ -62,9 +32,44 @@ router.post('/login', async (req, res) => {
         req.session.user = user; // Save user in session
         res.redirect('/home'); // Redirect to the dashboard after login
     } catch (err) {
-        res.status(400).send('Error logging in');
+        res.status(500).send('Error logging in');
     }
 });
+
+// Logout Route
+router.get('/logout', (req, res) => {
+    req.session.destroy((err) => {
+        if (err) {
+            return res.status(500).send('Error logging out');
+        }
+        res.redirect('/');
+    });
+});
+
+// Verification Route
+router.get('/verify/:token', async (req, res) => {
+    try {
+        const { token } = req.params;
+
+        // Find the user with the matching verification token
+        const user = await User.findOne({ verificationToken: token });
+
+        if (!user) {
+            return res.status(400).send('Invalid or expired verification token');
+        }
+
+        // Mark the user as verified
+        user.verified = true;
+        user.verificationToken = undefined; // Clear the token
+        await user.save();
+
+        res.send('Email verified successfully. You can now log in.');
+    } catch (err) {
+        res.status(500).send('Error verifying email');
+    }
+});
+
+// Resend Verification Email
 router.post('/resend-verification', async (req, res) => {
     try {
         const { email } = req.body;
@@ -90,7 +95,7 @@ router.post('/resend-verification', async (req, res) => {
 
         res.status(200).send('Verification email sent. Please check your email.');
     } catch (err) {
-        res.status(400).send('Error resending verification email');
+        res.status(500).send('Error resending verification email');
     }
 });
 

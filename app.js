@@ -2,15 +2,17 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const session = require('express-session');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs'); // ✅ Ensure consistency
 const path = require('path');
 require('dotenv').config();
+
+const authRoutes = require('./routes/authRoutes'); // ✅ Import auth routes
 
 const app = express();
 
 // Session middleware
 app.use(session({
-    secret: '41384154',
+    secret: process.env.SESSION_SECRET || 'supersecretkey', // ✅ Use env variable
     resave: false,
     saveUninitialized: false,
     cookie: { secure: false }
@@ -29,13 +31,17 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://HighRon:41384154@clus
     .then(() => console.log('Connected to MongoDB'))
     .catch((err) => console.error('Error connecting to MongoDB:', err));
 
-// Define User Schema
+// User Schema
 const userSchema = new mongoose.Schema({
     username: String,
     email: String,
-    password: String // In production, hash passwords before storing
+    password: String,
+    verified: { type: Boolean, default: false } // ✅ Ensure email verification is tracked
 });
 const User = mongoose.models.User || mongoose.model('User', userSchema);
+
+// Use Auth Routes
+app.use('/auth', authRoutes); // ✅ Use routes
 
 // Routes
 app.get('/', (req, res) => {
@@ -86,10 +92,10 @@ app.post('/login', async (req, res) => {
             return res.send('Invalid email or password');
         }
 
-        req.session.user = {
-            id: user._id,
-            email: user.email,
-            verified: true
+        req.session.user = { 
+            id: user._id, 
+            email: user.email, 
+            verified: user.verified // ✅ Check actual verification status
         };
 
         res.redirect('/home');
@@ -101,8 +107,11 @@ app.post('/login', async (req, res) => {
 
 // Home Route
 app.get('/home', (req, res) => {
-    if (!req.session.user || !req.session.user.verified) {
-        return res.redirect('/login'); // ✅ Redirects to login instead of looping
+    if (!req.session.user) {
+        return res.redirect('/login');
+    }
+    if (!req.session.user.verified) {
+        return res.send('Please verify your email before accessing this page.');
     }
     res.render('home', { user: req.session.user });
 });
