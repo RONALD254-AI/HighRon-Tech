@@ -107,7 +107,7 @@ app.post('/login', async (req, res) => {
 // FIX: Serve home.ejs instead of login.ejs
 app.get('/home', (req, res) => {
     if (!req.session.user || !req.session.user.verified) {
-        return res.redirect('/login');
+        return res.redirect('/home');
     }
     res.render('home'); // Rendering home.ejs now
 });
