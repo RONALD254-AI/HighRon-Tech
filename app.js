@@ -1,19 +1,19 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const authRoutes = require('./routes/authRoutes');
-const path = require('path');
 const session = require('express-session');
+const bcrypt = require('bcrypt');
+const path = require('path');
 require('dotenv').config();
 
 const app = express();
 
 // Session middleware
 app.use(session({
-    secret: '41384154', // Replace with a strong secret key
+    secret: '41384154',
     resave: false,
-    saveUninitialized: true,
-    cookie: { secure: false } // Set to true if using HTTPS
+    saveUninitialized: false,
+    cookie: { secure: false }
 }));
 
 // Middleware
@@ -38,24 +38,19 @@ const userSchema = new mongoose.Schema({
 const User = mongoose.models.User || mongoose.model('User', userSchema);
 
 // Routes
-app.use('/auth', authRoutes);
-
-// Home Route
 app.get('/', (req, res) => {
     res.render('index');
 });
 
-// Register Route (GET)
 app.get('/register', (req, res) => {
     res.render('register');
 });
 
-// Login Route (GET)
 app.get('/login', (req, res) => {
     res.render('login');
 });
 
-// Register Route (POST) - Now Saves to MongoDB
+// Register Route
 app.post('/register', async (req, res) => {
     const { username, password, email } = req.body;
 
@@ -65,54 +60,66 @@ app.post('/register', async (req, res) => {
             return res.send('User already exists! Try logging in.');
         }
 
-        const newUser = new User({ username, password, email });
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const newUser = new User({ username, email, password: hashedPassword });
         await newUser.save();
 
-        // Redirect automatically to the login page after successful registration
         res.redirect('/login');
     } catch (error) {
         console.error('Error registering user:', error);
         res.status(500).send('Server error');
     }
 });
-app.get('/login-successful', (req, res) => {
-    res.render('login-success'); // Ensure 'login-success.ejs' exists in the 'views' folder
-});
 
-// Login Route (POST) - Now Checks MongoDB
+// Login Route
 app.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
     try {
-        const user = await User.findOne({ email, password });
-
+        const user = await User.findOne({ email });
         if (!user) {
             return res.send('Invalid email or password');
         }
 
-        // Set session
+        const passwordMatch = await bcrypt.compare(password, user.password);
+        if (!passwordMatch) {
+            return res.send('Invalid email or password');
+        }
+
         req.session.user = {
             id: user._id,
             email: user.email,
             verified: true
         };
 
-        res.redirect('/home'); // Redirect to home after login
+        res.redirect('/home');
     } catch (error) {
         console.error('Error logging in:', error);
         res.status(500).send('Server error');
     }
 });
 
-// FIX: Serve home.ejs instead of login.ejs
+// Home Route
 app.get('/home', (req, res) => {
     if (!req.session.user || !req.session.user.verified) {
-        return res.redirect('/home');
+        return res.redirect('/login'); // ✅ Redirects to login instead of looping
     }
-    res.render('home'); // Rendering home.ejs now
+    res.render('home', { user: req.session.user });
 });
 
-// Start server
+// Login Successful Page
+app.get('/login-successful', (req, res) => {
+    res.render('login-success', { user: req.session.user });
+});
+
+// Logout Route
+app.get('/logout', (req, res) => {
+    req.session.destroy(() => {
+        res.redirect('/login');
+    });
+});
+
+// Start Server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
