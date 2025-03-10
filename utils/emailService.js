@@ -1,34 +1,32 @@
 const nodemailer = require('nodemailer');
-require('dotenv').config(); // Ensure you have .env for email credentials
+require('dotenv').config();
 
-// Create transporter using your email service provider
 const transporter = nodemailer.createTransport({
-    service: 'gmail', // Use your email provider (Gmail, Outlook, etc.)
+    service: 'gmail',
     auth: {
-        user: process.env.EMAIL_USER, // Your email
-        pass: process.env.EMAIL_PASS  // Your email password or app password
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
     }
 });
 
-// Function to send verification email
 const sendVerificationEmail = async (email, token) => {
-    const verificationLink = `http://localhost:3000/auth/verify/${token}`; // Adjust domain in production
+    console.log(`➡ Attempting to send email to: ${email}`);
+    console.log(`🔑 Verification link: https://highrontechcompany.onrender.com/auth/verify/${token}`);
 
     const mailOptions = {
         from: process.env.EMAIL_USER,
         to: email,
-        subject: 'Verify Your Email',
+        subject: 'Verify Your Email - Highron Tech',
         html: `<p>Click the link below to verify your email:</p>
-               <a href="${verificationLink}">${verificationLink}</a>
+               <a href="https://highrontechcompany.onrender.com/auth/verify/${token}">Verify Email</a>
                <p>If you did not request this, please ignore this email.</p>`
     };
 
     try {
-        await transporter.sendMail(mailOptions);
-        console.log(`Verification email sent to ${email}`);
+        const info = await transporter.sendMail(mailOptions);
+        console.log(`✅ Email sent: ${info.response}`);
     } catch (error) {
-        console.error('Error sending email:', error);
-        throw new Error('Could not send verification email');
+        console.error('❌ Error sending email:', error);
     }
 };
 
