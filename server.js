@@ -1,16 +1,17 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const nodemailer = require('nodemailer');
+const mongoose = require('mongoose');
+const User = mongoose.model('User', userSchema);
 const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname, 'public')));
 
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+app.get('/login', (req, res) => {
+    res.sendFile(path.join(__dirname, 'login'));
 });
 app.post('/submit', (req, res) => {
     const { email, name, phone, message } = req.body;
@@ -43,4 +44,10 @@ app.post('/submit', (req, res) => {
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
+});
+
+const userSchema = new mongoose.Schema({
+    username: String,
+    email: String,
+    password: String // In production, hash the password before storing
 });

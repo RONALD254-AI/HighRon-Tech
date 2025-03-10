@@ -8,9 +8,6 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-// Serve static files (HTML, CSS, JS)
-app.use(express.static(path.join(__dirname, 'public')));
-
 // Connect to MongoDB
 mongoose.connect('mongodb://localhost:27017/chatApp', {
     useNewUrlParser: true,

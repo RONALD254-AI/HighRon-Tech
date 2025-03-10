@@ -27,7 +27,7 @@ exports.register = async (req, res) => {
         }
 
         // Redirect to the desired page after successful login
-        res.redirect('/public/home.html'); // Replace with your desired route
+        res.redirect('/login'); // Replace with your desired route
     } catch (err) {
         res.status(400).send('Error logging in');
     }
