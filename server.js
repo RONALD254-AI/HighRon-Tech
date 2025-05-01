@@ -1,8 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const nodemailer = require('nodemailer');
-const mongoose = require('mongoose');
-const User = mongoose.model('User', userSchema);
 const path = require('path');
 
 const app = express();
@@ -51,3 +49,5 @@ const userSchema = new mongoose.Schema({
     email: String,
     password: String // In production, hash the password before storing
 });
+
+const User = mongoose.model('User', userSchema);
